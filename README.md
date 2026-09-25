@@ -19,22 +19,20 @@ actions/
 ## Flow
 
 ```mermaid
-flowchart LR
+flowchart TD
   subgraph parent["p-parent-workflow-example"]
     P["promote-image.yaml<br/>(workflow_dispatch)"]
   end
 
   subgraph shared["p-shared-workflow-example"]
-    W["ecr-retag.yml<br/>(reusable workflow)"]
-    V["validate job<br/>tag matches pattern"]
-    R["retag job"]
+    W["ecr-retag.yml<br/>(reusable workflow: validates tag, then retags)"]
     C["ecr-copy-manifest<br/>(composite action)"]
     T["ecr-verify-tag<br/>(composite action)"]
   end
 
   P -- "uses: + inputs + secrets" --> W
-  W --> V --> R
-  R --> C --> T
+  W -- "step 1" --> C
+  W -- "step 2" --> T
 ```
 
 ## Consuming
