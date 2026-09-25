@@ -16,6 +16,27 @@ actions/
 - **Reusable workflows** hold whole jobs. Consumers call them in place of their own `jobs:`.
 - **Composite actions** are single building blocks. The reusable workflows use them, and consumers can also use them directly as steps.
 
+## Flow
+
+```mermaid
+flowchart LR
+  subgraph parent["p-parent-workflow-example"]
+    P["promote-image.yaml<br/>(workflow_dispatch)"]
+  end
+
+  subgraph shared["p-shared-workflow-example"]
+    W["ecr-retag.yml<br/>(reusable workflow)"]
+    V["validate job<br/>tag matches pattern"]
+    R["retag job"]
+    C["ecr-copy-manifest<br/>(composite action)"]
+    T["ecr-verify-tag<br/>(composite action)"]
+  end
+
+  P -- "uses: + inputs + secrets" --> W
+  W --> V --> R
+  R --> C --> T
+```
+
 ## Consuming
 
 Call the workflow from a job in the consuming repo (see [p-parent-workflow-example](https://github.com/mattmoulds/p-parent-workflow-example)):
