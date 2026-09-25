@@ -1,0 +1,36 @@
+name: "ECR: Copy manifest between tags"
+description: "Copies an image manifest from source_tag to target_tag without pulling the image"
+inputs:
+  repository:
+    description: "ECR repository name"
+    required: true
+  source_tag:
+    description: "Existing tag to copy from"
+    required: true
+  target_tag:
+    description: "Tag to apply"
+    required: true
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        REPOSITORY: ${{ inputs.repository }}
+        SOURCE_TAG: ${{ inputs.source_tag }}
+        TARGET_TAG: ${{ inputs.target_tag }}
+      run: |
+        MANIFEST=$(aws ecr batch-get-image \
+          --repository-name "$REPOSITORY" \
+          --image-ids imageTag="$SOURCE_TAG" \
+          --query 'images[0].imageManifest' \
+          --output text)
+
+        if [[ -z "$MANIFEST" || "$MANIFEST" == "None" ]]; then
+          echo "::error::Source tag '$SOURCE_TAG' not found in $REPOSITORY"
+          exit 1
+        fi
+
+        aws ecr put-image \
+          --repository-name "$REPOSITORY" \
+          --image-tag "$TARGET_TAG" \
+          --image-manifest "$MANIFEST"

@@ -1,0 +1,30 @@
+name: "ECR: Verify tag"
+description: "Prints digest and push time for a tag, and appends them to the job summary"
+inputs:
+  repository:
+    description: "ECR repository name"
+    required: true
+  tag:
+    description: "Tag to verify"
+    required: true
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        REPOSITORY: ${{ inputs.repository }}
+        TAG: ${{ inputs.tag }}
+      run: |
+        RESULT=$(aws ecr describe-images \
+          --repository-name "$REPOSITORY" \
+          --image-ids imageTag="$TAG" \
+          --query 'imageDetails[0].{digest:imageDigest,pushedAt:imagePushedAt}' \
+          --output table)
+
+        echo "$RESULT"
+        {
+          echo "### \`$REPOSITORY:$TAG\`"
+          echo '```'
+          echo "$RESULT"
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"
