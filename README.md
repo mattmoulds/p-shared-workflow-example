@@ -18,7 +18,7 @@ actions/
 
 ## Consuming
 
-Call the workflow from a job in the consuming repo (see [p-parent-workflow-example-](https://github.com/mattmoulds/p-parent-workflow-example)):
+Call the workflow from a job in the consuming repo (see [p-parent-workflow-example](https://github.com/mattmoulds/p-parent-workflow-example)):
 
 ```yaml
 jobs:
